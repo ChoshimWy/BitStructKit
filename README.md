@@ -18,7 +18,7 @@ BitStructKit is a tiny Swift library that lets you describe bit-packed payloads 
 Add BitStructKit to your `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/Choshim/BitStructKit.git", from: "0.1.0")
+.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "0.1.0")
 ```
 
 Then add `"BitStructKit"` to the target dependencies that need it.
@@ -35,7 +35,9 @@ end
 
 ## Usage
 
-Below is an example that mirrors the `DataPacket` C bitfield from the tests. Each descriptor specifies how many bits belong to that property, matching the field declaration order in C.
+The example below mirrors the Objective‑C `DataPacket` bitfield that produced the `8d00000000000000018c` payload. The steps are always the same: describe your layout, decode raw bytes, optionally mutate fields, then re‑encode.
+
+### 1. Describe the bit layout
 
 ```swift
 import BitStructKit
@@ -59,22 +61,60 @@ struct DataPacket: BitStructCodable {
         ]
     }
 }
+```
 
-var packet = DataPacket()
-packet.operaType = 0x01
-packet.commandType = 0x0C
-packet.mode = 0x01
+### 2. Decode existing bytes (e.g. Objective‑C payload)
+
+```swift
+let hexPayload = "8d00000000000000018c"
+
+extension Data {
+    init?(hexString: String) {
+        let clean = hexString.replacingOccurrences(of: " ", with: "")
+        guard clean.count % 2 == 0 else { return nil }
+
+        var bytes = Data(capacity: clean.count / 2)
+        var index = clean.startIndex
+        while index < clean.endIndex {
+            let next = clean.index(index, offsetBy: 2)
+            guard let value = UInt8(clean[index..<next], radix: 16) else { return nil }
+            bytes.append(value)
+            index = next
+        }
+        self = bytes
+    }
+
+    var hexString: String {
+        map { String(format: "%02X", $0) }.joined()
+    }
+}
+
+guard
+    let payload = Data(hexString: hexPayload),
+    let decoded = DataPacket.decode(from: payload)
+else {
+    fatalError("Invalid payload")
+}
+
+print(decoded.mode)        // 0x01
+print(decoded.commandType) // 0x0C
+print(decoded.operaType)   // 0x01
+```
+
+### 3. Mutate fields and re‑encode
+
+```swift
+var packet = decoded
+packet.mode = 0x02
 
 var encoded = packet.encode()
 packet.checkSum = encoded.dropFirst().reduce(0, &+)
 encoded = packet.encode()
 
-// encoded now matches the Objective-C output 8d00000000000000018c
-
-if let decoded = DataPacket.decode(from: encoded) {
-    // Round-trip back into strongly typed fields
-}
+print(encoded.hexString) // Still uses the same bit layout
 ```
+
+Because BitStructKit packs bits exactly like Clang, the resulting bytes match the ones produced by the C implementation.
 
 ## Development
 

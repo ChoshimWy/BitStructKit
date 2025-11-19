@@ -7,13 +7,13 @@ BitStructKit provides a lightweight protocol for describing bit-packed network o
 payloads. Declare your fields with widths, then encode/decode Data buffers with the
 same layout you would expect from C bitfields.
   DESC
-  spec.homepage     = "https://github.com/Choshim/BitStructKit"
+  spec.homepage     = "https://github.com/ChoshimWy/BitStructKit"
   spec.license      = { :type => "MIT" }
   spec.authors      = { "ChoshimWei" => "" }
   spec.swift_versions = ["5"]
   spec.ios.deployment_target = "11.0"
   spec.osx.deployment_target = "10.15"
-  spec.source       = { :git => "https://github.com/Choshim/BitStructKit.git", :tag => spec.version }
+  spec.source       = { :git => "https://github.com/ChoshimWy/BitStructKit.git", :tag => spec.version }
   spec.source_files = "Sources/BitStructKit/**/*.{swift}"
   spec.requires_arc = true
 end

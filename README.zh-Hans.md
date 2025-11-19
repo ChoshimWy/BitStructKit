@@ -16,7 +16,7 @@ BitStructKit 是一个轻量级的 Swift 库，用于以声明式方式描述类
 在 `Package.swift` 中加入依赖：
 
 ```swift
-.package(url: "https://github.com/Choshim/BitStructKit.git", from: "0.1.0")
+.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "0.1.0")
 ```
 
 并在目标中添加 `"BitStructKit"` 作为依赖项。
@@ -35,7 +35,9 @@ end
 
 ## 使用示例
 
-下面示例与测试用例中的 `DataPacket` 位域保持一致。每个字段的位数与 C 中声明顺序完全相同。
+以下示例与测试用例中的 `DataPacket` 位域完全一致，展示了如何描述结构、解析十六进制数据、再重新写回字节流。
+
+### 1. 定义位域结构
 
 ```swift
 import BitStructKit
@@ -59,22 +61,60 @@ struct DataPacket: BitStructCodable {
         ]
     }
 }
+```
 
-var packet = DataPacket()
-packet.operaType = 0x01
-packet.commandType = 0x0C
-packet.mode = 0x01
+### 2. 解析 Objective-C 生成的十六进制报文
+
+```swift
+let hexPayload = "8d00000000000000018c"
+
+extension Data {
+    init?(hexString: String) {
+        let clean = hexString.replacingOccurrences(of: " ", with: "")
+        guard clean.count % 2 == 0 else { return nil }
+
+        var bytes = Data(capacity: clean.count / 2)
+        var index = clean.startIndex
+        while index < clean.endIndex {
+            let next = clean.index(index, offsetBy: 2)
+            guard let value = UInt8(clean[index..<next], radix: 16) else { return nil }
+            bytes.append(value)
+            index = next
+        }
+        self = bytes
+    }
+
+    var hexString: String {
+        map { String(format: "%02X", $0) }.joined()
+    }
+}
+
+guard
+    let payload = Data(hexString: hexPayload),
+    let decoded = DataPacket.decode(from: payload)
+else {
+    fatalError("无效报文")
+}
+
+print(decoded.mode)        // 0x01
+print(decoded.commandType) // 0x0C
+print(decoded.operaType)   // 0x01
+```
+
+### 3. 修改字段并重新编码
+
+```swift
+var packet = decoded
+packet.mode = 0x02
 
 var encoded = packet.encode()
 packet.checkSum = encoded.dropFirst().reduce(0, &+)
 encoded = packet.encode()
 
-// encoded == 8d00000000000000018c，对应 Objective-C 输出
-
-if let decoded = DataPacket.decode(from: encoded) {
-    // 成功还原强类型字段
-}
+print(encoded.hexString) // 仍遵循相同的位域布局
 ```
+
+BitStructKit 与 Clang 位域保持一致，因此编码结果能够与 Objective-C/ C 的实现严格匹配。
 
 ## 开发
 
