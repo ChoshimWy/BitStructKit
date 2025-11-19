@@ -40,7 +40,7 @@ end
 ```swift
 import BitStructKit
 
-struct DataPacket: BitStructKit {
+struct DataPacket: BitStructCodable {
     var checkSum: UInt8 = 0
     var reserve: UInt64 = 0
     var type: UInt8 = 0
