@@ -18,7 +18,7 @@ BitStructKit is a tiny Swift library that lets you describe bit-packed payloads 
 Add BitStructKit to your `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "0.1.0")
+.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "1.0")
 ```
 
 Then add `"BitStructKit"` to the target dependencies that need it.
@@ -29,7 +29,7 @@ Add the pod to your `Podfile` and run `pod install`:
 
 ```ruby
 target 'YourApp' do
-  pod 'BitStructKit', '~> 0.1.0'
+    pod 'BitStructKit', '~> 1.0'
 end
 ```
 

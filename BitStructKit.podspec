@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "BitStructKit"
-  spec.version      = "0.1.0"
+  spec.version      = "1.0"
   spec.summary      = "Declarative bit-field encoder/decoder for Swift structs."
   spec.description  = <<-DESC
 BitStructKit provides a lightweight protocol for describing bit-packed network or firmware
