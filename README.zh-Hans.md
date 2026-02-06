@@ -91,7 +91,7 @@ extension Data {
 
 guard
     let payload = Data(hexString: hexPayload),
-    let decoded = DataPacket.decode(from: payload)
+    let decoded = DataPacket.decodeIfPossible(from: payload)
 else {
     fatalError("无效报文")
 }
@@ -115,6 +115,28 @@ print(encoded.hexString) // 仍遵循相同的位域布局
 ```
 
 BitStructKit 与 Clang 位域保持一致，因此编码结果能够与 Objective-C/ C 的实现严格匹配。
+
+## 约束与说明
+
+- 位序为单字节内小端，布局与小端平台上的 Clang 位域一致（例如 iOS arm64）。
+- 每个字段的 `size` 必须在 0...64 之间，并且 `<= Value.bitWidth`。
+- 有符号字段使用补码编码，解码时会进行符号扩展。
+
+## 错误处理与缓冲区编码
+
+可以使用可抛错的 `decode` 获取失败原因，并直接写入字节缓冲区以减少分配：
+
+```swift
+do {
+    let packet = try DataPacket.decode(from: payload)
+    print(packet)
+} catch {
+    print(error)
+}
+
+var buffer = [UInt8]()
+decoded.encode(into: &buffer)
+```
 
 ## 开发
 

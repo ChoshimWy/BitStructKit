@@ -91,7 +91,7 @@ extension Data {
 
 guard
     let payload = Data(hexString: hexPayload),
-    let decoded = DataPacket.decode(from: payload)
+    let decoded = DataPacket.decodeIfPossible(from: payload)
 else {
     fatalError("Invalid payload")
 }
@@ -115,6 +115,28 @@ print(encoded.hexString) // Still uses the same bit layout
 ```
 
 Because BitStructKit packs bits exactly like Clang, the resulting bytes match the ones produced by the C implementation.
+
+## Notes and constraints
+
+- Bit order is little-endian within each byte, matching Clang bitfields on little-endian targets (e.g. iOS arm64).
+- Each descriptor `size` must be within 0...64 and `<= Value.bitWidth`.
+- Signed fields use two's complement encoding and sign-extend on decode.
+
+## Error handling and buffers
+
+You can use the throwing `decode` to get a reason when decoding fails, and encode directly into a byte buffer to avoid extra allocations:
+
+```swift
+do {
+    let packet = try DataPacket.decode(from: payload)
+    print(packet)
+} catch {
+    print(error)
+}
+
+var buffer = [UInt8]()
+decoded.encode(into: &buffer)
+```
 
 ## Development
 

@@ -55,7 +55,7 @@ func bitStructVerifyDataConsistency() async throws {
         throw FixtureError.invalidHexFixture
     }
 
-    guard let decoded = DataPacket.decode(from: payload) else {
+    guard let decoded = DataPacket.decodeIfPossible(from: payload) else {
         throw FixtureError.decodeFailed
     }
 
@@ -78,6 +78,51 @@ func bitStructVerifyDataConsistency() async throws {
     let data = manualPacket.encode()
     let hex = data.hexString
     #expect(hex.lowercased() == hexPayload.lowercased())
+}
+
+@Test("验证解码错误原因")
+func bitStructDecodeThrowsOnShortData() async throws {
+    let shortPayload = Data([0x00])
+
+    #expect(DataPacket.decodeIfPossible(from: shortPayload) == nil)
+
+    do {
+        _ = try DataPacket.decode(from: shortPayload)
+        #expect(Bool(false))
+    } catch let error as BitStructDecodingError {
+        #expect(error == .insufficientBytes(expected: 10, actual: 1))
+    }
+}
+
+// MARK: - SignedPacket
+
+struct SignedPacket: BitStructCodable {
+    var signedNibble: Int8 = 0
+
+    static var fieldDescriptors: [AnyFieldDescriptor<SignedPacket>] {
+        [AnyFieldDescriptor(keyPath: \.signedNibble, size: 4)]
+    }
+}
+
+@Test("验证有符号位域编码解码")
+func bitStructSignedFieldRoundTrip() async throws {
+    var packet = SignedPacket()
+    packet.signedNibble = -1
+
+    let encoded = packet.encode()
+    #expect(encoded == Data([0x0F]))
+
+    guard let decoded = SignedPacket.decodeIfPossible(from: encoded) else {
+        throw FixtureError.decodeFailed
+    }
+    #expect(decoded.signedNibble == -1)
+
+    let negativeEight = SignedPacket.decodeIfPossible(from: Data([0x08]))
+    #expect(negativeEight?.signedNibble == -8)
+
+    var buffer = [UInt8]()
+    packet.encode(into: &buffer)
+    #expect(buffer == [0x0F])
 }
 
 extension Data {
