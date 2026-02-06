@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "BitStructKit"
-  spec.version      = "1.0"
+  spec.version      = "1.0.1"
   spec.summary      = "Declarative bit-field encoder/decoder for Swift structs."
   spec.description  = <<-DESC
 BitStructKit provides a lightweight protocol for describing bit-packed network or firmware
@@ -8,7 +8,7 @@ payloads. Declare your fields with widths, then encode/decode Data buffers with 
 same layout you would expect from C bitfields.
   DESC
   spec.homepage     = "https://github.com/ChoshimWy/BitStructKit"
-  spec.license      = { :type => "MIT" }
+  spec.license      = { :type => "MIT", :file => "LICENSE" }
   spec.authors      = { "ChoshimWei" => "" }
   spec.swift_versions = ["5"]
   spec.ios.deployment_target = "11.0"

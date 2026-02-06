@@ -16,7 +16,7 @@ BitStructKit 是一个轻量级的 Swift 库，用于以声明式方式描述类
 在 `Package.swift` 中加入依赖：
 
 ```swift
-.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "1.0")
+.package(url: "https://github.com/ChoshimWy/BitStructKit.git", from: "1.0.1")
 ```
 
 并在目标中添加 `"BitStructKit"` 作为依赖项。
@@ -27,7 +27,7 @@ BitStructKit 是一个轻量级的 Swift 库，用于以声明式方式描述类
 
 ```ruby
 target 'YourApp' do
-    pod 'BitStructKit', '~> 1.0'
+    pod 'BitStructKit', '~> 1.0.1'
 end
 ```
 
