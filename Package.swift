@@ -18,6 +18,10 @@ let package = Package(
         .target(
             name: "BitStructKit"
         ),
+        .executableTarget(
+            name: "BitStructKitBenchmarks",
+            dependencies: ["BitStructKit"]
+        ),
         .testTarget(
             name: "BitStructKitTests",
             dependencies: ["BitStructKit"]
